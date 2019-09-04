@@ -1,58 +1,64 @@
 package brainfuckup.interpret
 
 import brainfuckup.BrainFuckInterpreter
-import java.util.*
-import kotlin.collections.HashMap
 
 // todo change ptr start to middle of block
-open class BrainFuckCodeInterpreter() : BrainFuckInterpreter {
+abstract class BrainFuckCodeInterpreter<T : Number, Arr>() : BrainFuckInterpreter<T> {
 
     public val blockPattern = 0xffff
-    val memory = HashMap<Int, ShortArray>()
+    val memory = HashMap<Int, Arr>()
     var ptr = 0
-
-    private fun getBlockAddressFromPtr(ptrValue: Int) = (ptrValue and blockPattern.inv())
-    private fun getInBlockAddressFromPtr(ptrValue: Int) = (ptrValue and blockPattern)
-
-    private fun getInBlockAddressFromPtr() = getInBlockAddressFromPtr(ptr)
-
-    fun getMemoryDump(): SortedMap<Int, Short> {
-        val ret = TreeMap<Int, Short>()
-        for ((k, block) in memory.entries.sortedBy { x -> x.key }) {
-            for ((index, value) in block.withIndex()) {
-                ret[(k or index)] = value
-            }
-        }
-        return ret;
-    }
+    val inBlockAddress: Int
+        get() = (ptr and blockPattern)
 
     fun setValue(value: Int) {
-        getMemoryBlock()[getInBlockAddressFromPtr()] = value.toShort()
+        setBlockValue(getMemoryBlock(), inBlockAddress, value)
     }
 
+    fun setValue(ptrChange: Int, value: Int) {
+        val addr = ((ptr + ptrChange) and blockPattern)
+        val block = getMemoryBlock(addr)
+        setBlockValue(block, addr, value)
+    }
 
     fun changeValue(value: Int) {
+        val addr = inBlockAddress
         val block = getMemoryBlock()
-        val inBlock = getInBlockAddressFromPtr()
-        block[inBlock] = (block[inBlock] + value).toShort()
+        incBlockValue(block, addr, value)
+
+
     }
 
-
-    fun getValue(): Short {
-        val block = getMemoryBlock()
-        return block[getInBlockAddressFromPtr()]
+    fun changeValue(ptrChange: Int, value: Int) {
+        val addr = ((ptr + ptrChange) and blockPattern)
+        val block = getMemoryBlock(addr)
+        incBlockValue(block, addr, value)
     }
 
-    private fun getMemoryBlock(): ShortArray {
+    fun getValue(): T {
+        val block = getMemoryBlock()
+        return getBlockValue(block, inBlockAddress)
+    }
+
+    abstract fun getBlockValue(block: Arr, index: Int): T;
+    abstract fun setBlockValue(block: Arr, index: Int, value: Int);
+    abstract fun incBlockValue(block: Arr, index: Int, value: Int);
+
+    private fun getMemoryBlock(): Arr {
         return getMemoryBlock(ptr)
     }
 
-    private fun getMemoryBlock(ptrValue: Int): ShortArray {
-        val memoryBlock = getBlockAddressFromPtr(ptrValue)
+    private fun getMemoryBlock(ptrValue: Int): Arr {
+        val memoryBlock = (ptrValue and blockPattern.inv())
         return memory.computeIfAbsent(memoryBlock) {
-            ShortArray(blockPattern + 1)
+            getArr(blockPattern + 1)
         }
     }
+
+    private fun getArr(size: Int): Arr {
+        return ShortArray(size) as Arr
+    }
+
 
     override fun run(program: String) {
         val code = BrainFuckCode()
@@ -87,7 +93,7 @@ open class BrainFuckCodeInterpreter() : BrainFuckInterpreter {
                 }
                 is Instruction.SetValWriteString -> {
                     for (value in instr.list) {
-                        write(value.toShort())
+                        write(value as T) // todo
                     }
                     setValue(instr.list.last())
                 }

@@ -1,15 +1,27 @@
 package brainfuckup
 
 import java.util.*
+import java.util.Stack
 import kotlin.collections.HashMap
 
-interface BrainFuckInterpreter {
-    fun write(v: Short) = print(v.toChar())
-    fun read(): Short = System.`in`.read().toShort()
+interface BrainFuckInterpreter<T : Number> {
+    fun write(v: T);
+    fun read(): T;
     fun run(program: String);
+
+    fun getMemoryDump(): SortedMap<Int, T>;
 }
 
-open class SimpleBrainFuckInterpreter :BrainFuckInterpreter{
+open class SimpleBrainFuckInterpreter : BrainFuckInterpreter<Short> {
+
+    override fun getMemoryDump(): SortedMap<Int, Short> {
+        val s = TreeMap<Int, Short>()
+        val entries = memory.entries.sortedBy { x -> x.key }
+        for ((k, v) in entries) {
+            s[k] = v
+        }
+        return s;
+    }
 
     override fun write(v: Short) = print(v.toChar())
     override fun read(): Short = System.`in`.read().toShort()

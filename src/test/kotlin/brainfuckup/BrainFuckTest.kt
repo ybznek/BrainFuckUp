@@ -1,5 +1,6 @@
 package brainfuckup
 
+import brainfuckup.expression.Constant
 import brainfuckup.expression.Expression
 import brainfuckup.expression.Variable
 import org.junit.Assert

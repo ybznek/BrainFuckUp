@@ -83,3 +83,6 @@ References
 ==========
 - https://en.wikipedia.org/wiki/Brainfuck
 - https://esolangs.org/wiki/Brainfuck_algorithms
+- http://www.inshame.com/2008/02/efficient-brainfuck-tables.html (future? array implementation)
+- https://github.com/eriknyquist/bfi (fast interpret)
+- optimizations https://github.com/matslina/bfoptimization/tree/master/opt

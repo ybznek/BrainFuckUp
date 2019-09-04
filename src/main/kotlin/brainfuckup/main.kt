@@ -1,8 +1,9 @@
 package brainfuckup
 
+import brainfuckup.expression.Constant
 import brainfuckup.interpret.BrainFuckCode
 import brainfuckup.interpret.BrainFuckCodeInterpreter
-
+import brainfuckup.interpret.BrainFuckCodeInterpreterShortCell
 
 fun main() {
 
@@ -19,29 +20,29 @@ fun main() {
                     declare { inputNumber, success ->
                         readNumber(inputNumber, success)
                         condition(
-                            expr = success,
-                            then = {
-                                write("So ")
-                                writeCellAsNumber(inputNumber)
-                                writeln(" you say?")
-                                condition(inputNumber eq numberToGuess, {
-                                    writeln("You won!")
-                                    end set TRUE
-                                }, {
-                                    condition(inputNumber eq 1, {
-                                        writeln("Zbynek is number one!!! But it is not correct answer. Try once more")
+                                expr = success,
+                                then = {
+                                    write("So ")
+                                    writeCellAsNumber(inputNumber)
+                                    writeln(" you say?")
+                                    condition(inputNumber eq numberToGuess, {
+                                        writeln("You won!")
+                                        end set TRUE
                                     }, {
-                                        condition(inputNumber gt numberToGuess, {
-                                            writeln("Your guess is too high :\\ You can try again")
+                                        condition(inputNumber eq 1, {
+                                            writeln("Zbynek is number one!!! But it is not correct answer. Try once more")
                                         }, {
-                                            writeln("Your guess is too low :\\\n You can try again")
+                                            condition(inputNumber gt numberToGuess, {
+                                                writeln("Your guess is too high :\\ You can try again")
+                                            }, {
+                                                writeln("Your guess is too low :\\\n You can try again")
+                                            })
                                         })
                                     })
+                                },
+                                els = {
+                                    writeln("Invalid number")
                                 })
-                            },
-                            els = {
-                                writeln("Invalid number")
-                            })
 
                     }
                 }
@@ -54,8 +55,7 @@ fun main() {
     code.load(program)
     println(code)
     println(program)
-    println("Program size: ${program.length}")
-    val inter = BrainFuckCodeInterpreter()
+    val inter = BrainFuckCodeInterpreterShortCell()
     println("Run :\n")
     inter.run(program)
 }

@@ -1,8 +1,8 @@
 package brainfuckup
 
-import brainfuckup.interpret.BrainFuckCodeInterpreter
+import brainfuckup.interpret.BrainFuckCodeInterpreterShortCell
 
-class TestInterpreterSimple() : BrainFuckCodeInterpreter() {
+class TestInterpreterSimple() : BrainFuckCodeInterpreterShortCell() {
 
     var inputData = charArrayOf()
     var inputIndex = 0
