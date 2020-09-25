@@ -17,42 +17,42 @@ Input:
 ```
     val bf = BrainFuckMachine()
     bf.create {
-        declare { v1, end ->
-            end set 0
-            write("Guess my number. It is between 1 and 100. Write your guess\n")
-    
-            whileLoop(end eq 0) {
-                declare { inputNumber, inputChar ->
-                    read(inputChar)
-                    whileLoop((inputChar neq 13) and (inputChar neq 10)) {
+        declare { numberToGuess ->
+            numberToGuess set 20 + 30
+            numberToGuess set (numberToGuess div 2) + 5
+            declare { end ->
+                end set FALSE
+                writeln("Guess my number. It is between 1 and 100. Write your guess")
+
+                whileLoop(end eq FALSE) {
+                    declare { inputNumber, success ->
+                        readNumber(inputNumber, success)
                         condition(
-                            (inputChar gte '0') and (inputChar lte '9')
-                        ) {
-                            declare { filtered ->
-                                filtered set (inputChar - '0')
-                                inputNumber set ((inputNumber * 10) + filtered)
-                            }
-                        }
-                        read(inputChar)
-                    }
-                    write("So ")
-                    writeCellAsNumber(inputNumber)
-                    write(" you say?\n")
-    
-                    condition(inputNumber eq 36, {
-                        write("You won!\n")
-                        end set 1
-                    }, {
-                        condition(inputNumber eq 1, {
-                            write("Zbynek is number one!!! But it is not correct answer. Try once more\n")
-                        }, {
-                            condition(inputNumber gt 36, {
-                                write("Your guess is too high :\\ You can try again\n")
-                            }, {
-                                write("Your guess is too low :\\\n You can try again\n")
+                            expr = success,
+                            then = {
+                                write("So ")
+                                writeCellAsNumber(inputNumber)
+                                writeln(" you say?")
+                                condition(inputNumber eq numberToGuess, {
+                                    writeln("You won!")
+                                    end set TRUE
+                                }, {
+                                    condition(inputNumber eq 1, {
+                                        writeln("Zbynek is number one!!! But it is not correct answer. Try once more")
+                                    }, {
+                                        condition(inputNumber gt numberToGuess, {
+                                            writeln("Your guess is too high :\\ You can try again")
+                                        }, {
+                                            writeln("Your guess is too low :\\\n You can try again")
+                                        })
+                                    })
+                                })
+                            },
+                            els = {
+                                writeln("Invalid number")
                             })
-                        })
-                    })
+
+                    }
                 }
             }
         }
