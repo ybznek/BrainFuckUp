@@ -128,7 +128,6 @@ class BrainFuckCode {
     }
 
 
-
     fun load(program: String) {
 
         val instrStack = Stack<MutableList<Instruction>>()
@@ -195,19 +194,25 @@ class BrainFuckCode {
                         val instruction: Instruction = lastLoop.list[0]
                         if (instruction is ChangeVal && instruction.diff == -1) {
                             insts.pop()
-                            if (insts.isNotEmpty()) {
-                                when (insts.top()) {
-                                    is SetVal, is ChangeVal -> insts.pop() // this instruction has no effect
+
+                            when (val topOrNOP = insts.topOrNOP()) {
+                                is SetVal, is ChangeVal -> insts.pop() // this instruction has no effect
+                                is ChangeValPtr -> {
+                                    insts.pop()
+                                    insts.push(MovePtr(topOrNOP.ptr))
+                                }
+                                is SetValPtr -> {
+                                    insts.pop()
+                                    insts.push(MovePtr(topOrNOP.ptr))
                                 }
                             }
-                            val topStack = instrStack.top()
 
-                            when (val topOrNOP = topStack.topOrNOP()) {
+                            when (val topOrNOP = insts.topOrNOP()) {
                                 is MovePtr -> {
-                                    topStack.pop()
-                                    topStack.push(SetValPtr(topOrNOP.diff, 0))
+                                    insts.pop()
+                                    insts.push(SetValPtr(topOrNOP.diff, 0))
                                 }
-                                else -> topStack.push(SetVal(0))
+                                else -> insts.push(SetVal(0))
                             }
 
                         }

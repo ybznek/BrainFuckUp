@@ -78,6 +78,16 @@ class BrainFuckCodeTest {
         assertGenerated(">>[-]--", SetValPtr(2,-2))
     }
 
+    @Test
+    fun doubleSetValReset() {
+        assertGenerated("[-]+++[-]++", SetVal(2))
+    }
+
+    @Test
+    fun SetValPtrSetValReset() {
+        assertGenerated(">>>[-]+++[-]++", SetValPtr(3,2))
+    }
+
     private fun assertGenerated(program: String, vararg elements: Instruction) {
         val instructions = getInstructions(program)
         assertThat(instructions).containsExactly(*elements)
