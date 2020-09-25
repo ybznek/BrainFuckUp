@@ -571,8 +571,6 @@ class BrainFuckMachine() {
                 bf.assign(target, var1.index, tmp)
                 bf.div(target, var2.index, tmp, tmp2, tmp3, tmp4)
                 Variable(target)
-
-
             }
             ExpressionType.Neq -> {
                 val (target, tmp, tmp2) = getFreeRegister3(var1.index, var2.index)
