@@ -56,15 +56,6 @@ open class BrainFuckMachine() {
         }
     }
 
-    infix fun Expression.gte(e2: Expression) = (this gt e2) or (this eq e2)
-    infix fun Expression.gte(value: Int) = this gte Constant(value)
-    infix fun Expression.gte(value: Char) = this gte Constant(value.toInt())
-    infix fun Expression.lt(e2: Expression) = (e2 gt this)
-    infix fun Expression.lte(e2: Expression) = (e2 gt this) or (this eq e2)
-    infix fun Expression.lte(value: Int) = this lte Constant(value)
-    infix fun Expression.lte(value: Char) = this lte Constant(value.toInt())
-    operator fun Expression.plus(v: Char) = this + v.toInt()
-
 
     fun declare(size: Int = 1, func: BrainFuckMachine.(Variable) -> Unit) {
         val v = Variable(cnt)
@@ -221,7 +212,6 @@ open class BrainFuckMachine() {
         }
     }
 
-
     operator fun BfArray.set(index: Expression, value: Expression) {
         arrayAccess(this, index) { stack ->
             stack.set(value)
@@ -248,8 +238,6 @@ open class BrainFuckMachine() {
 
     fun whileLoop(expr: Expression, body: BrainFuckMachine.() -> Unit) = whileLoop(expr, body, {})
 
-
-
     inline fun declare(crossinline func: BrainFuckMachine.(Variable, Variable) -> Unit) {
         declare { v1 ->
             declare { v2 ->
@@ -257,7 +245,6 @@ open class BrainFuckMachine() {
             }
         }
     }
-
 
     inline fun declare(crossinline func: BrainFuckMachine.(Variable, Variable, Variable) -> Unit) {
         declare { v1 ->
@@ -281,13 +268,12 @@ open class BrainFuckMachine() {
         }
     }
 
-
     fun not(variable: Expression) = Formula(
+
         ExpressionType.Eq,
         variable,
         Constant(0)
     )
-
 
     fun write(v: Expression) = bf.write(evaluate(v, null).index)
     fun writeln(v: Expression) {
@@ -297,8 +283,6 @@ open class BrainFuckMachine() {
 
     fun create(func: BrainFuckMachine.() -> Unit) = func()
 
-
-
     fun <T> blockRegister(r: Variable, func: () -> T): T {
         return blockRegister(r.index) {
             func()
@@ -306,7 +290,7 @@ open class BrainFuckMachine() {
     }
 
     fun <T> blockRegister(r: Int, func: () -> T): T {
-        var t: T;
+        val t: T;
         if (registerList.contains(r) && !usedRegister.contains(r)) {
 
             usedRegister.add(r)
@@ -319,6 +303,7 @@ open class BrainFuckMachine() {
     }
 
     fun Variable.times(func: (Variable) -> Unit) {
+
         blockRegister(this.index) {
             val variable = this
             bf.decLoop(this.index) {
@@ -349,7 +334,8 @@ open class BrainFuckMachine() {
     }
 
 
-    fun evaluate(expr: Expression, targetVar: Variable?): Variable {
+    private fun evaluate(expr: Expression, targetVar: Variable?): Variable {
+
         return when (expr) {
             is Variable ->
                 if (targetVar != null) {
@@ -407,36 +393,42 @@ open class BrainFuckMachine() {
 
         return when (type) {
             ExpressionType.Allocate -> TODO()
+
             ExpressionType.And -> {
                 val (tmp1, tmp2) = getFreeRegister2(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp1)
                 bf.and(target, var2.index, tmp1, tmp2)
                 Variable(target)
             }
+
             ExpressionType.Plus -> {
                 val tmp = getFreeRegister(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp)
                 bf.add(target, var2.index, tmp)
                 Variable(target)
             }
+
             ExpressionType.Minus -> {
                 val tmp = getFreeRegister(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp)
                 bf.sub(target, var2.index, tmp)
                 Variable(target)
             }
+
             ExpressionType.Mult -> {
                 val (tmp, tmp2) = getFreeRegister2(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp)
                 bf.mult(target, var2.index, tmp, tmp2)
                 Variable(target)
             }
+
             ExpressionType.Div -> {
                 val (tmp, tmp2, tmp3, tmp4) = getFreeRegister4(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp)
                 bf.div(target, var2.index, tmp, tmp2, tmp3, tmp4)
                 Variable(target)
             }
+
             ExpressionType.Neq -> {
                 val (tmp, tmp2) = getFreeRegister2(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp)
@@ -450,6 +442,7 @@ open class BrainFuckMachine() {
                 bf.eq(target, var2.index, tmp, tmp2)
                 Variable(target)
             }
+
             ExpressionType.Gt -> {
                 val (o1, o2, tmp3, tmp4) = getFreeRegister4(var1.index, var2.index, target)
                 bf.assign(o1, var1.index, tmp3)
@@ -461,6 +454,7 @@ open class BrainFuckMachine() {
     }
 
     fun write(v: String) {
+
         declare { variable ->
             bf.program {
                 for (c in v) {
@@ -474,13 +468,11 @@ open class BrainFuckMachine() {
                     }
                 }
             }
-
         }
-
     }
 
-
     infix fun Expression.swap(second: Expression) {
+
         val var1 = evaluate(this, null)
         blockRegister(var1) {
             val var2 = evaluate(second, null) // todo?
@@ -490,6 +482,7 @@ open class BrainFuckMachine() {
     }
 
     fun whileLoop(expr: Expression, body: BrainFuckMachine.() -> Unit, negBody: BrainFuckMachine.() -> Unit) {
+
         val condVariable = evaluate(expr, null)
         blockRegister(condVariable) {
 
@@ -513,14 +506,12 @@ open class BrainFuckMachine() {
 
     fun switch(expr: Expression, vararg cases: Pair<Any, () -> Unit>) {
 
-
         cases.forEach { case ->
             val value = case.first
             if (!(value is Int || value is Char || value is Expression)) {
                 throw IllegalArgumentException("Value must be Int or Char or Expression")
             }
         }
-
 
         declare { mainVar ->
             mainVar set expr
@@ -551,7 +542,6 @@ open class BrainFuckMachine() {
 
             }
 
-
             generate(0)
 
         }
@@ -566,7 +556,6 @@ open class BrainFuckMachine() {
             negative()
             return;
         }
-
 
         val (tmp0, tmp1) = getFreeRegister2()
         blockRegister(tmp0) {
@@ -638,6 +627,14 @@ open class BrainFuckMachine() {
     infix fun Expression.gt(var2: Int) = this gt Constant(var2)
     infix fun Expression.neq(var2: Int) = this neq Constant(var2)
     infix fun Variable.and(second: Variable) = Formula(ExpressionType.And, this, second)
+    infix fun Expression.gte(e2: Expression) = (this gt e2) or (this eq e2)
+    infix fun Expression.gte(value: Int) = this gte Constant(value)
+    infix fun Expression.gte(value: Char) = this gte Constant(value.toInt())
+    infix fun Expression.lt(e2: Expression) = (e2 gt this)
+    infix fun Expression.lte(e2: Expression) = (e2 gt this) or (this eq e2)
+    infix fun Expression.lte(value: Int) = this lte Constant(value)
+    infix fun Expression.lte(value: Char) = this lte Constant(value.toInt())
+    operator fun Expression.plus(v: Char) = this + v.toInt()
 
     override fun toString() = bf.toString()
 }
