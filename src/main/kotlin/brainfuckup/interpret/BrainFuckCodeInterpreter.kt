@@ -77,6 +77,10 @@ open class BrainFuckCodeInterpreter() : BrainFuckInterpreter {
                 is Instruction.Loop -> while (getValue() != 0.toShort()) runCode(instr.list)
                 is Instruction.SetVal -> setValue(instr.value)
                 is Instruction.Write -> write(getValue())
+                is Instruction.SetValWrite -> {
+                    setValue(instr.value)
+                    write(getValue())
+                }
                 is Instruction.Read -> setValue(read().toInt())
                 is Instruction.NOP -> Unit
             }

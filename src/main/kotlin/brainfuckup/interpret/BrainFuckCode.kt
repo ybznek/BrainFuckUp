@@ -81,7 +81,15 @@ class BrainFuckCode {
                     is MovePtr -> last.diff--
                     else -> insts.push(MovePtr(-1))
                 }
-                '.' -> insts.push(Write)
+                '.' -> {
+                    when (last) {
+                        is SetVal -> {
+                            insts.pop()
+                            insts.push(SetValWrite(last.value))
+                        }
+                        else -> insts.push(Write)
+                    }
+                }
                 ',' -> insts.push(Read)
                 '[' -> {
                     val newLoop = Loop()

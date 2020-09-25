@@ -85,8 +85,13 @@ class BrainFuckCodeTest {
     }
 
     @Test
-    fun SetValPtrSetValReset() {
+    fun setValPtrSetValReset() {
         assertGenerated(">>>[-]+++[-]++", SetValPtr(3, 2))
+    }
+
+    @Test
+    fun setValWrite() {
+        assertGenerated("[-]+++.", SetValWrite(3))
     }
 
     private fun assertGenerated(program: String, vararg elements: Instruction) {

@@ -1,6 +1,6 @@
 package brainfuckup.interpret
 
-interface Instruction{
+interface Instruction {
 
     class MovePtr(var diff: Int) : Instruction {
 
@@ -45,6 +45,20 @@ interface Instruction{
 
         override fun equals(other: Any?): Boolean {
             return (other as? SetVal)?.value == this.value
+        }
+
+        override fun hashCode(): Int {
+            return value
+        }
+    }
+
+    class SetValWrite(var value: Int) : Instruction {
+        override fun toString(): String {
+            return "setValWrite($value)"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return (other as? SetValWrite)?.value == this.value
         }
 
         override fun hashCode(): Int {
