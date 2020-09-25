@@ -11,11 +11,11 @@ fun main() {
         declare { numberToGuess ->
             numberToGuess set 20 + 30
             numberToGuess set (numberToGuess div 2) + 5
-            declare { v1, end ->
+            declare { end ->
                 end set FALSE
                 write("Guess my number. It is between 1 and 100. Write your guess\n")
 
-                whileLoop(end eq TRUE) {
+                whileLoop(end eq FALSE) {
                     declare { inputNumber, inputChar ->
                         read(inputChar)
                         whileLoop((inputChar neq 13) and (inputChar neq 10)) {
