@@ -224,10 +224,6 @@ class BrainFuckMachine() {
             val s2 = arr.stack2
 
             declare { r1v ->
-                //write("before")
-                //writeCellAsNumber(indexValue)
-                //write("\n")
-
 
                 condition(indexValue gt Variable(arr.currentIndexVar), {
                     declare { needShift ->
@@ -251,10 +247,6 @@ class BrainFuckMachine() {
                 Variable(arr.currentIndexVar) set indexValue
 
                 func(s1)
-
-                //write("after")
-                //writeCellAsNumber(indexValue)
-                //write("\n")
 
             }
 
