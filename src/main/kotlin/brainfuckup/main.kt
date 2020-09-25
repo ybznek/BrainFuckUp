@@ -12,10 +12,10 @@ fun main() {
             numberToGuess set 20 + 30
             numberToGuess set (numberToGuess div 2) + 5
             declare { v1, end ->
-                end set 0
+                end set FALSE
                 write("Guess my number. It is between 1 and 100. Write your guess\n")
 
-                whileLoop(end eq 0) {
+                whileLoop(end eq TRUE) {
                     declare { inputNumber, inputChar ->
                         read(inputChar)
                         whileLoop((inputChar neq 13) and (inputChar neq 10)) {
@@ -35,7 +35,7 @@ fun main() {
 
                         condition(inputNumber eq numberToGuess, {
                             write("You won!\n")
-                            end set 1
+                            end set TRUE
                         }, {
                             condition(inputNumber eq 1, {
                                 write("Zbynek is number one!!! But it is not correct answer. Try once more\n")

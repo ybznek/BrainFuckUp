@@ -3,11 +3,15 @@ package brainfuckup
 import brainfuckup.expression.*
 
 
-class BrainFuckMachine() {
+open class BrainFuckMachine() {
+
+    val TRUE = Constant(1)
+    val FALSE = Constant(0)
 
     data class Quadruple<T1, T2, T3, T4>(val v1: T1, val v2: T2, val v3: T3, val v4: T4);
     data class Tuple<T1, T2, T3, T4, T5>(val v1: T1, val v2: T2, val v3: T3, val v4: T4, val v5: T5);
 
+    var cnt = 1
 
     val bf = BrainFuckCodeGenerator()
 
@@ -45,33 +49,6 @@ class BrainFuckMachine() {
         return Tuple(frees[0], frees[1], frees[2], frees[3], frees[4])
     }
 
-    operator fun Expression.plus(v: Int): Expression {
-        return Formula(
-            ExpressionType.Plus,
-            this,
-            Constant(v)
-        )
-    }
-
-    operator fun Int.plus(expr: Expression): Expression {
-        return Formula(
-            ExpressionType.Plus,
-            Constant(this),
-            expr
-        )
-    }
-
-    infix operator fun Expression.div(v: Int): Expression {
-        return Formula(
-            ExpressionType.Div,
-            this,
-            Constant(v)
-        )
-    }
-
-    infix operator fun Expression.div(second: Expression): Expression {
-        return Formula(ExpressionType.Div, this, second)
-    }
 
     fun read(e: Variable) {
         bf.move(e.index) {
@@ -80,29 +57,14 @@ class BrainFuckMachine() {
     }
 
     infix fun Expression.gte(e2: Expression) = (this gt e2) or (this eq e2)
-    infix fun Expression.gte(value: Int) = this gte Constant(
-        value
-    )
-
-    infix fun Expression.gte(value: Char) = this gte Constant(
-        value.toInt()
-    )
-
+    infix fun Expression.gte(value: Int) = this gte Constant(value)
+    infix fun Expression.gte(value: Char) = this gte Constant(value.toInt())
     infix fun Expression.lt(e2: Expression) = (e2 gt this)
     infix fun Expression.lte(e2: Expression) = (e2 gt this) or (this eq e2)
-    infix fun Expression.lte(value: Int) = this lte Constant(
-        value
-    )
+    infix fun Expression.lte(value: Int) = this lte Constant(value)
+    infix fun Expression.lte(value: Char) = this lte Constant(value.toInt())
+    operator fun Expression.plus(v: Char) = this + v.toInt()
 
-    infix fun Expression.lte(value: Char) = this lte Constant(
-        value.toInt()
-    )
-
-    operator fun Expression.plus(v: Char): Expression {
-        return this + v.toInt()
-    }
-
-    var cnt = 1
 
     fun declare(size: Int = 1, func: BrainFuckMachine.(Variable) -> Unit) {
         val v = Variable(cnt)
@@ -191,17 +153,9 @@ class BrainFuckMachine() {
         Variable(this.start) set e
     }
 
-    fun Stack.peek(v: Variable) {
-        v set Variable(this.start)
-    }
-
-    fun Stack.set(e: Expression) {
-        Variable(this.start) set e
-    }
-
-    fun Stack.push(e: Char) {
-        this.push(Constant(e.toInt()))
-    }
+    fun Stack.peek(v: Variable) = v set Variable(this.start)
+    fun Stack.set(e: Expression) = Variable(this.start) set e
+    fun Stack.push(e: Char) = this.push(Constant(e.toInt()))
 
 
     fun useArray(size: Int, func: BrainFuckMachine.(BfArray) -> Unit) {
@@ -274,29 +228,10 @@ class BrainFuckMachine() {
         }
     }
 
-    inline operator fun BfArray.set(index: Expression, value: Char) {
-        this.set(index, value.toInt())
-    }
-
-    inline operator fun BfArray.set(index: Int, value: Expression) {
-        this.set(Constant(index), value)
-    }
-
-    inline operator fun BfArray.set(index: Int, value: Char) {
-        this.set(Constant(index), Constant(value.toInt()))
-    }
-
-    inline operator fun BfArray.set(index: Expression, value: Int) {
-        this.set(index, Constant(value))
-    }
-
-    operator fun BfArray.get(index: Expression): Expression {
-        return ArrayAccess(this, index)
-    }
-
-    inline operator fun BfArray.get(index: Int): Expression {
-        return this[Constant(index)]
-    }
+    inline operator fun BfArray.set(index: Int, value: Expression) = this.set(Constant(index), value)
+    inline operator fun BfArray.set(index: Expression, value: Int) = this.set(index, Constant(value))
+    inline operator fun BfArray.get(index: Expression) = ArrayAccess(this, index)
+    inline operator fun BfArray.get(index: Int) = this[Constant(index)]
 
     fun forLoop(
         init: BrainFuckMachine.() -> Unit,
@@ -311,9 +246,9 @@ class BrainFuckMachine() {
         }
     }
 
-    infix fun Variable.and(second: Variable): Expression {
-        return Formula(ExpressionType.And, this, second)
-    }
+    fun whileLoop(expr: Expression, body: BrainFuckMachine.() -> Unit) = whileLoop(expr, body, {})
+
+
 
     inline fun declare(crossinline func: BrainFuckMachine.(Variable, Variable) -> Unit) {
         declare { v1 ->
@@ -347,43 +282,12 @@ class BrainFuckMachine() {
     }
 
 
-    infix fun Expression.and(second: Expression) =
-        Formula(ExpressionType.And, this, second)
-
     fun not(variable: Expression) = Formula(
         ExpressionType.Eq,
         variable,
         Constant(0)
     )
 
-    infix fun Expression.or(variable: Expression) = not(not(this) and not(variable))
-    operator fun Expression.plus(second: Expression) =
-        Formula(ExpressionType.Plus, this, second)
-
-    operator fun Expression.minus(second: Expression) =
-        Formula(ExpressionType.Minus, this, second)
-
-    operator fun Expression.minus(second: Int) = this.minus(
-        Constant(
-            second
-        )
-    )
-
-    operator fun Expression.minus(second: Char) = this.minus(
-        Constant(
-            second.toInt()
-        )
-    )
-
-
-    operator fun Expression.times(second: Expression) =
-        Formula(ExpressionType.Mult, this, second)
-
-    operator fun Expression.times(second: Int) = this.times(
-        Constant(
-            second
-        )
-    )
 
     fun write(v: Expression) = bf.write(evaluate(v, null).index)
     fun writeln(v: Expression) {
@@ -393,7 +297,7 @@ class BrainFuckMachine() {
 
     fun create(func: BrainFuckMachine.() -> Unit) = func()
 
-    override fun toString() = bf.toString()
+
 
     fun <T> blockRegister(r: Variable, func: () -> T): T {
         return blockRegister(r.index) {
@@ -444,29 +348,6 @@ class BrainFuckMachine() {
         }
     }
 
-
-    infix fun Expression.eq(var2: Expression) =
-        Formula(ExpressionType.Eq, this, var2)
-
-    infix fun Expression.eq(value: Int) = this.eq(
-        Constant(
-            value
-        )
-    )
-
-    infix fun Expression.neq(var2: Expression) =
-        Formula(ExpressionType.Neq, this, var2)
-
-    infix fun Expression.neq(var2: Int) = this.neq(
-        Constant(
-            var2
-        )
-    )
-
-    infix fun Expression.gt(var2: Int) = this.gt(Constant(var2))
-
-    infix fun Expression.gt(var2: Expression) =
-        Formula(ExpressionType.Gt, this, var2)
 
     fun evaluate(expr: Expression, targetVar: Variable?): Variable {
         return when (expr) {
@@ -598,7 +479,6 @@ class BrainFuckMachine() {
 
     }
 
-    fun whileLoop(expr: Expression, body: BrainFuckMachine.() -> Unit) = whileLoop(expr, body, {})
 
     infix fun Expression.swap(second: Expression) {
         val var1 = evaluate(this, null)
@@ -630,11 +510,6 @@ class BrainFuckMachine() {
         }
     }
 
-    val TRUE: Expression
-        get() = Constant(1)
-
-    val FALSE: Expression
-        get() = Constant(0)
 
     fun switch(expr: Expression, vararg cases: Pair<Any, () -> Unit>) {
 
@@ -680,10 +555,6 @@ class BrainFuckMachine() {
             generate(0)
 
         }
-    }
-
-    fun condition(expr: Expression, positive: BrainFuckMachine.() -> Unit) {
-        condition(expr, positive, {})
     }
 
     fun condition(expr: Expression, positive: BrainFuckMachine.() -> Unit, negative: BrainFuckMachine.() -> Unit) {
@@ -743,4 +614,30 @@ class BrainFuckMachine() {
             }
         }
     }
+
+
+    infix fun Expression.or(variable: Expression) = not(not(this) and not(variable))
+    operator fun Expression.plus(second: Expression) = Formula(ExpressionType.Plus, this, second)
+    infix fun Expression.eq(value: Int) = this eq Constant(value)
+    operator fun Expression.minus(second: Expression) = Formula(ExpressionType.Minus, this, second)
+    operator fun Expression.minus(second: Int) = this - Constant(second)
+    operator fun Expression.times(second: Expression) = Formula(ExpressionType.Mult, this, second)
+    infix fun Expression.and(second: Expression) = Formula(ExpressionType.And, this, second)
+    operator fun Expression.plus(v: Int): Expression = Formula(ExpressionType.Plus, this, Constant(v))
+    operator fun Int.plus(expr: Expression) = Formula(ExpressionType.Plus, Constant(this), expr)
+    infix operator fun Expression.div(v: Int) = Formula(ExpressionType.Div, this, Constant(v))
+    infix operator fun Expression.div(second: Expression) = Formula(ExpressionType.Div, this, second)
+    inline operator fun BfArray.set(index: Int, value: Char) = this.set(Constant(index), Constant(value.toInt()))
+    inline operator fun BfArray.set(index: Expression, value: Char) = this.set(index, value.toInt())
+    operator fun Expression.times(second: Int) = this * Constant(second)
+    operator fun Expression.minus(second: Char) = this - Constant(second.toInt())
+    fun condition(expr: Expression, positive: BrainFuckMachine.() -> Unit) = condition(expr, positive, {})
+    infix fun Expression.eq(var2: Expression) = Formula(ExpressionType.Eq, this, var2)
+    infix fun Expression.neq(var2: Expression) = Formula(ExpressionType.Neq, this, var2)
+    infix fun Expression.gt(var2: Expression) = Formula(ExpressionType.Gt, this, var2)
+    infix fun Expression.gt(var2: Int) = this gt Constant(var2)
+    infix fun Expression.neq(var2: Int) = this neq Constant(var2)
+    infix fun Variable.and(second: Variable) = Formula(ExpressionType.And, this, second)
+
+    override fun toString() = bf.toString()
 }
