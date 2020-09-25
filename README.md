@@ -20,8 +20,8 @@ Input:
         declare { v1, end ->
             end set 0
             write("Guess my number. It is between 1 and 100. Write your guess\n")
-
-            whileLoop(end eq (Constant(0))) {
+    
+            whileLoop(end eq 0) {
                 declare { inputNumber, inputChar ->
                     read(inputChar)
                     whileLoop((inputChar neq 13) and (inputChar neq 10)) {
@@ -38,7 +38,7 @@ Input:
                     write("So ")
                     writeCellAsNumber(inputNumber)
                     write(" you say?\n")
-
+    
                     condition(inputNumber eq 36, {
                         write("You won!\n")
                         end set 1
@@ -53,12 +53,9 @@ Input:
                             })
                         })
                     })
-
-
                 }
             }
         }
-
     }
     
     println("Program:\n")

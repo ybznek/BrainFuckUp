@@ -8,14 +8,44 @@ fun main() {
 
     val bf = BrainFuckMachine()
     bf.create {
+        declare { v1, end ->
+            end set 0
+            write("Guess my number. It is between 1 and 100. Write your guess\n")
 
-        declare { i ->
+            whileLoop(end eq 0) {
+                declare { inputNumber, inputChar ->
+                    read(inputChar)
+                    whileLoop((inputChar neq 13) and (inputChar neq 10)) {
+                        condition(
+                            (inputChar gte '0') and (inputChar lte '9')
+                        ) {
+                            declare { filtered ->
+                                filtered set (inputChar - '0')
+                                inputNumber set ((inputNumber * 10) + filtered)
+                            }
+                        }
+                        read(inputChar)
+                    }
+                    write("So ")
+                    writeCellAsNumber(inputNumber)
+                    write(" you say?\n")
 
-            forLoop({ i set 10 }, { i lte 12 }, { i set i + 1 }) {
-                writeCellAsNumber(i)
-                write("\n")
+                    condition(inputNumber eq 36, {
+                        write("You won!\n")
+                        end set 1
+                    }, {
+                        condition(inputNumber eq 1, {
+                            write("Zbynek is number one!!! But it is not correct answer. Try once more\n")
+                        }, {
+                            condition(inputNumber gt 36, {
+                                write("Your guess is too high :\\ You can try again\n")
+                            }, {
+                                write("Your guess is too low :\\\n You can try again\n")
+                            })
+                        })
+                    })
+                }
             }
-
         }
     }
 

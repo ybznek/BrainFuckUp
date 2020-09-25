@@ -1,6 +1,5 @@
 package brainfuckup
 
-import brainfuckup.expression.Constant
 import brainfuckup.expression.Expression
 import brainfuckup.expression.Variable
 import org.junit.Assert
@@ -576,18 +575,18 @@ class BrainFuckTest {
 
         machine.create {
             declare { canary1 ->
-                canary1 set 'A'.toInt()
+                canary1 set 'A'
                 useArray(10) { array ->
                     declare { canary2 ->
-                        canary2 set 'B'.toInt()
-                        array[Constant(1)] = Constant('A'.toInt())
-                        array[Constant(0)] = Constant('C'.toInt())
-                        array[Constant(2)] = Constant('U'.toInt())
+                        canary2 set 'B'
+                        array[1] = 'A'
+                        array[0] = 'C'
+                        array[2] = 'U'
 
                         write(canary1)
-                        write(array[Constant(0)])
-                        write(array[Constant(1)])
-                        write(array[Constant(2)])
+                        write(array[0])
+                        write(array[1])
+                        write(array[2])
                         write(canary2)
 
                     }
@@ -666,6 +665,5 @@ class BrainFuckTest {
         val generated = machine.toString()
         Assert.assertEquals(generated, ">[-]---<")
     }
-
 
 }

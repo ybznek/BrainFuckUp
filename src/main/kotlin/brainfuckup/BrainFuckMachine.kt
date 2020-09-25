@@ -118,6 +118,10 @@ class BrainFuckMachine() {
         this@BrainFuckMachine[this] = value
     }
 
+    infix fun Variable.set(value: Char) {
+        this@BrainFuckMachine[this] = value.toInt()
+    }
+
     infix fun Variable.set(expr: Expression) {
 
         fun tryIncDec(constant: Constant, type: ExpressionType): Boolean {
@@ -289,6 +293,10 @@ class BrainFuckMachine() {
 
     inline operator fun BfArray.set(index: Int, value: Expression) {
         this.set(Constant(index), value)
+    }
+
+    inline operator fun BfArray.set(index: Int, value: Char) {
+        this.set(Constant(index), Constant(value.toInt()))
     }
 
     inline operator fun BfArray.set(index: Expression, value: Int) {
