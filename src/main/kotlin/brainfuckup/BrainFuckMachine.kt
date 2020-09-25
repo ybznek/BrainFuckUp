@@ -312,6 +312,28 @@ open class BrainFuckMachine() {
         }
     }
 
+    fun readNumber(target: Variable, success:Variable){
+        success set TRUE
+        declare { inputChar ->
+            read(inputChar)
+            whileLoop((inputChar neq 13) and (inputChar neq 10)) {
+                condition(
+                    expr = (inputChar gte '0') and (inputChar lte '9'),
+                    then = {
+                        declare { filtered ->
+                            filtered set (inputChar - '0')
+                            target set ((target * 10) + filtered)
+                        }
+                    },
+                    els = {
+                        success set FALSE
+                    }
+                )
+                read(inputChar)
+            }
+        }
+    }
+
     fun writeCellAsNumber(e: Expression) {
 
         declare { input, d, h ->
@@ -471,6 +493,10 @@ open class BrainFuckMachine() {
         }
     }
 
+    fun writeln(v: String) {
+        write(v + "\n")
+    }
+
     infix fun Expression.swap(second: Expression) {
 
         val var1 = evaluate(this, null)
@@ -547,13 +573,13 @@ open class BrainFuckMachine() {
         }
     }
 
-    fun condition(expr: Expression, positive: BrainFuckMachine.() -> Unit, negative: BrainFuckMachine.() -> Unit) {
+    fun condition(expr: Expression, then: BrainFuckMachine.() -> Unit, els: BrainFuckMachine.() -> Unit) {
 
         if (expr == TRUE) {
-            positive()
+            then()
             return
         } else if (expr == FALSE) {
-            negative()
+            els()
             return;
         }
 
@@ -584,7 +610,7 @@ open class BrainFuckMachine() {
                         loop {
 
                             moveTo(tmp1, 0)
-                            positive()
+                            then()
                             moveTo(0, tmp1)
 
                             moveTo(tmp1, tmp0)
@@ -596,7 +622,7 @@ open class BrainFuckMachine() {
                         moveTo(tmp1, 0)
 
                         decLoop(tmp0) {
-                            negative()
+                            els()
                         }
                     }
                 }

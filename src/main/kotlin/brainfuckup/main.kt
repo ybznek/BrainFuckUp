@@ -13,40 +13,36 @@ fun main() {
             numberToGuess set (numberToGuess div 2) + 5
             declare { end ->
                 end set FALSE
-                write("Guess my number. It is between 1 and 100. Write your guess\n")
+                writeln("Guess my number. It is between 1 and 100. Write your guess")
 
                 whileLoop(end eq FALSE) {
-                    declare { inputNumber, inputChar ->
-                        read(inputChar)
-                        whileLoop((inputChar neq 13) and (inputChar neq 10)) {
-                            condition(
-                                (inputChar gte '0') and (inputChar lte '9')
-                            ) {
-                                declare { filtered ->
-                                    filtered set (inputChar - '0')
-                                    inputNumber set ((inputNumber * 10) + filtered)
-                                }
-                            }
-                            read(inputChar)
-                        }
-                        write("So ")
-                        writeCellAsNumber(inputNumber)
-                        write(" you say?\n")
-
-                        condition(inputNumber eq numberToGuess, {
-                            write("You won!\n")
-                            end set TRUE
-                        }, {
-                            condition(inputNumber eq 1, {
-                                write("Zbynek is number one!!! But it is not correct answer. Try once more\n")
-                            }, {
-                                condition(inputNumber gt numberToGuess, {
-                                    write("Your guess is too high :\\ You can try again\n")
+                    declare { inputNumber, success ->
+                        readNumber(inputNumber, success)
+                        condition(
+                            expr = success,
+                            then = {
+                                write("So ")
+                                writeCellAsNumber(inputNumber)
+                                writeln(" you say?")
+                                condition(inputNumber eq numberToGuess, {
+                                    writeln("You won!")
+                                    end set TRUE
                                 }, {
-                                    write("Your guess is too low :\\\n You can try again\n")
+                                    condition(inputNumber eq 1, {
+                                        writeln("Zbynek is number one!!! But it is not correct answer. Try once more")
+                                    }, {
+                                        condition(inputNumber gt numberToGuess, {
+                                            writeln("Your guess is too high :\\ You can try again")
+                                        }, {
+                                            writeln("Your guess is too low :\\\n You can try again")
+                                        })
+                                    })
                                 })
+                            },
+                            els = {
+                                writeln("Invalid number")
                             })
-                        })
+
                     }
                 }
             }
