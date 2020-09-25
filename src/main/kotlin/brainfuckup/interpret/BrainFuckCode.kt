@@ -7,14 +7,32 @@ class BrainFuckCode {
 
     interface Instruction
     class MovePtr(var diff: Int) : Instruction {
+
+        override fun equals(other: Any?): Boolean {
+            return (other as? MovePtr)?.diff == this.diff
+        }
+
         override fun toString(): String {
             return "MovePtr($diff)"
         }
+
+        override fun hashCode(): Int {
+            return diff
+        }
     }
 
-    class ChangeVal(var diff: Int) : Instruction {
+    data class ChangeVal(var diff: Int) : Instruction {
+
+        override fun equals(other: Any?): Boolean {
+            return (other as? ChangeVal)?.diff == this.diff
+        }
+
         override fun toString(): String {
             return "ChangeVal($diff)"
+        }
+
+        override fun hashCode(): Int {
+            return diff
         }
     }
 
@@ -28,17 +46,47 @@ class BrainFuckCode {
         override fun toString(): String {
             return "setVal($value)"
         }
-    }
 
-    class SetValPtr(var ptr: Int, var value: Int) : Instruction {
-        override fun toString(): String {
-            return "setVal($ptr, $value)"
+        override fun equals(other: Any?): Boolean {
+            return (other as? SetVal)?.value == this.value
+        }
+
+        override fun hashCode(): Int {
+            return value
         }
     }
 
     class ChangeValPtr(var ptr: Int, var value: Int) : Instruction {
         override fun toString(): String {
-            return "setVal($ptr, $value)"
+            return "changeValPtr($ptr, $value)"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            val o = other as? ChangeValPtr ?: return false
+            return (o.value == value) && (o.ptr == ptr)
+        }
+
+        override fun hashCode(): Int {
+            var result = ptr
+            result = 31 * result + value
+            return result
+        }
+    }
+
+    class SetValPtr(var ptr: Int, var value: Int) : Instruction {
+        override fun toString(): String {
+            return "setValPtr($ptr, $value)"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            val o = other as? SetValPtr ?: return false
+            return (o.value == value) && (o.ptr == ptr)
+        }
+
+        override fun hashCode(): Int {
+            var result = ptr
+            result = 31 * result + value
+            return result
         }
     }
 
@@ -75,6 +123,11 @@ class BrainFuckCode {
         return this[lastIndex]
     }
 
+    fun MutableList<Instruction>.topOrNOP(): Instruction {
+        return if (this.isEmpty()) return NOP else this.top()
+    }
+
+
 
     fun load(program: String) {
 
@@ -92,11 +145,31 @@ class BrainFuckCode {
                 '+' -> when (last) {
                     is ChangeVal -> last.diff++
                     is SetVal -> last.value++
+                    is MovePtr -> {
+                        insts.pop()
+                        insts.push(ChangeValPtr(last.diff, 1))
+                    }
+                    is ChangeValPtr -> {
+                        last.value++
+                    }
+                    is SetValPtr -> {
+                        last.value++
+                    }
                     else -> insts.push(ChangeVal(1))
                 }
                 '-' -> when (last) {
                     is ChangeVal -> last.diff--
                     is SetVal -> last.value--
+                    is MovePtr -> {
+                        insts.pop()
+                        insts.push(ChangeValPtr(last.diff, -1))
+                    }
+                    is ChangeValPtr -> {
+                        last.value--
+                    }
+                    is SetValPtr -> {
+                        last.value--
+                    }
                     else -> insts.push(ChangeVal(-1))
                 }
                 '>' -> when (last) {
@@ -127,7 +200,16 @@ class BrainFuckCode {
                                     is SetVal, is ChangeVal -> insts.pop() // this instruction has no effect
                                 }
                             }
-                            instrStack.top().push(SetVal(0))
+                            val topStack = instrStack.top()
+
+                            when (val topOrNOP = topStack.topOrNOP()) {
+                                is MovePtr -> {
+                                    topStack.pop()
+                                    topStack.push(SetValPtr(topOrNOP.diff, 0))
+                                }
+                                else -> topStack.push(SetVal(0))
+                            }
+
                         }
                     }
                 }
