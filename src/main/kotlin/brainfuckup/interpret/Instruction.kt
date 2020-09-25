@@ -66,6 +66,20 @@ interface Instruction {
         }
     }
 
+    class ChangeValWrite(var diff: Int) : Instruction {
+        override fun toString(): String {
+            return "changeValWrite($diff)"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return (other as? ChangeValWrite)?.diff == this.diff
+        }
+
+        override fun hashCode(): Int {
+            return diff
+        }
+    }
+
     class ChangeValPtr(var ptr: Int, var value: Int) : Instruction {
         override fun toString(): String {
             return "changeValPtr($ptr, $value)"

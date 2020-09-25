@@ -41,42 +41,42 @@ class BrainFuckCodeTest {
 
     @Test
     fun testPtrAndAdd() {
-        assertGenerated(">>+", ChangeValPtr(2,1))
+        assertGenerated(">>+", ChangeValPtr(2, 1))
     }
 
     @Test
     fun testPtrAndAddAdd() {
-        assertGenerated(">>++", ChangeValPtr(2,2))
+        assertGenerated(">>++", ChangeValPtr(2, 2))
     }
 
     @Test
     fun testPtrAndSub() {
-        assertGenerated(">>-", ChangeValPtr(2,-1))
+        assertGenerated(">>-", ChangeValPtr(2, -1))
     }
 
     @Test
     fun testPtrAndAddSub() {
-        assertGenerated(">>--", ChangeValPtr(2,-2))
+        assertGenerated(">>--", ChangeValPtr(2, -2))
     }
 
     @Test
     fun testPtrAndSetPositive() {
-        assertGenerated(">>[-]+", SetValPtr(2,1))
+        assertGenerated(">>[-]+", SetValPtr(2, 1))
     }
 
     @Test
     fun testPtrAndSetPositive2() {
-        assertGenerated(">>[-]++", SetValPtr(2,2))
+        assertGenerated(">>[-]++", SetValPtr(2, 2))
     }
 
     @Test
     fun testPtrAndSetNegative() {
-        assertGenerated(">>[-]-", SetValPtr(2,-1))
+        assertGenerated(">>[-]-", SetValPtr(2, -1))
     }
 
     @Test
     fun testPtrAndSetNegative2() {
-        assertGenerated(">>[-]--", SetValPtr(2,-2))
+        assertGenerated(">>[-]--", SetValPtr(2, -2))
     }
 
     @Test
@@ -92,6 +92,11 @@ class BrainFuckCodeTest {
     @Test
     fun setValWrite() {
         assertGenerated("[-]+++.", SetValWrite(3))
+    }
+
+    @Test
+    fun changeValWrite() {
+        assertGenerated("+++.", ChangeValWrite(3))
     }
 
     private fun assertGenerated(program: String, vararg elements: Instruction) {

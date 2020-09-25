@@ -87,6 +87,10 @@ class BrainFuckCode {
                             insts.pop()
                             insts.push(SetValWrite(last.value))
                         }
+                        is ChangeVal -> {
+                            insts.pop()
+                            insts.push(ChangeValWrite(last.diff))
+                        }
                         else -> insts.push(Write)
                     }
                 }
