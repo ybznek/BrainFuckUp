@@ -144,8 +144,7 @@ class BrainFuckMachine() {
                 }
             }
         }
-        this@BrainFuckMachine[this] = evaluate(expr)
-
+        evaluate(expr, this)
     }
 
     @JvmName("setOperatorInt")
@@ -159,11 +158,7 @@ class BrainFuckMachine() {
 
     @JvmName("setOperatorVariable")
     operator fun set(v: Variable, second: Expression) {
-        val exprVariable = evaluate(second)
-        blockRegister(exprVariable) {
-            val tmp = getFreeRegister(v.index)
-            bf.assign(v.index, exprVariable.index, tmp)
-        }
+        evaluate(second, v)
     }
 
     fun useStack(size: Int, func: BrainFuckMachine.(Stack) -> Unit) {
@@ -222,7 +217,7 @@ class BrainFuckMachine() {
 
 
     fun arrayAccess(arr: BfArray, index: Expression, func: (s1: Stack) -> Unit) {
-        val indexValue = evaluate(index)
+        val indexValue = evaluate(index, null)
         blockRegister(indexValue) {
 
             val s1 = arr.stack1
@@ -398,7 +393,7 @@ class BrainFuckMachine() {
         )
     )
 
-    fun write(v: Expression) = bf.write(evaluate(v).index)
+    fun write(v: Expression) = bf.write(evaluate(v, null).index)
     fun writeln(v: Expression) {
         write(v)
         write("\n")
@@ -481,36 +476,41 @@ class BrainFuckMachine() {
     infix fun Expression.gt(var2: Expression) =
         Formula(ExpressionType.Gt, this, var2)
 
-    fun evaluate(expr: Expression): Variable {
+    fun evaluate(expr: Expression, targetVar: Variable?): Variable {
         return when (expr) {
-            is Variable -> expr
+            is Variable ->
+                if (targetVar != null) {
+                    val tmp = getFreeRegister(targetVar.index)
+                    bf.assign(targetVar.index, expr.index, tmp)
+                    targetVar
+                } else {
+                    expr
+                }
+
             is Constant -> {
-                val reg = getFreeRegister()
-                val variable = Variable(reg)
-                bf.set(reg, expr.value)
-                variable
+                if (targetVar == null) {
+                    val reg = getFreeRegister()
+                    val variable = Variable(reg)
+                    bf.set(reg, expr.value)
+                    variable
+                } else {
+                    bf.set(targetVar.index, expr.value)
+                    targetVar
+                }
             }
 
             is Formula -> {
-                val var1 = evaluate(expr.v1)
+                val var1 = evaluate(expr.v1, null)
                 blockRegister(var1) {
-                    val var2 = evaluate(expr.v2)
-                    evaluateFormula(expr.type, var1, var2)
+                    val var2 = evaluate(expr.v2, null)
+                    evaluateFormula(expr.type, var1, var2, targetVar)
                 }
             }
 
-            is SingleVariableFormula -> {
-                val var1 = evaluate(expr.e)
-                val var2 = blockRegister(var1) {
-                    evaluateFormula(expr.type, var1)
-                }
-                var2
-
-            }
             is ArrayAccess -> {
                 val reg = getFreeRegister()
                 blockRegister(reg) {
-                    val indexVar = evaluate(expr.index)
+                    val indexVar = evaluate(expr.index, null)
 
                     arrayAccess(expr.arr, indexVar) { stack ->
                         stack.peek(Variable(reg))
@@ -523,70 +523,62 @@ class BrainFuckMachine() {
         }
     }
 
-
-    private fun evaluateFormula(
-        type: SingleExpressionType,
-        var1: Variable
-
-    ): Variable {
-        when (type) {
-            else -> TODO("")
-        }
-    }
-
-
     private fun evaluateFormula(
         type: ExpressionType,
         var1: Variable,
-        var2: Variable
+        var2: Variable,
+        targetVar: Variable?
     ): Variable {
+
+        val target = targetVar?.index ?: getFreeRegister(var1.index, var2.index)
+
         return when (type) {
             ExpressionType.Allocate -> TODO()
             ExpressionType.And -> {
-                val (target, tmp1, tmp2) = getFreeRegister3(var1.index, var2.index)
+                val (tmp1, tmp2) = getFreeRegister2(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp1)
                 bf.and(target, var2.index, tmp1, tmp2)
                 Variable(target)
             }
             ExpressionType.Plus -> {
-                val (target, tmp) = getFreeRegister2(var1.index, var2.index)
+                val tmp = getFreeRegister(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp)
                 bf.add(target, var2.index, tmp)
                 Variable(target)
             }
             ExpressionType.Minus -> {
-                val (target, tmp) = getFreeRegister2(var1.index, var2.index)
+                val tmp = getFreeRegister(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp)
                 bf.sub(target, var2.index, tmp)
                 Variable(target)
             }
             ExpressionType.Mult -> {
-                val (target, tmp, tmp2) = getFreeRegister3(var1.index, var2.index)
+                val (tmp, tmp2) = getFreeRegister2(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp)
                 bf.mult(target, var2.index, tmp, tmp2)
                 Variable(target)
             }
             ExpressionType.Div -> {
-                val (target, tmp, tmp2, tmp3, tmp4) = getFreeRegister5(var1.index, var2.index)
+                val (tmp, tmp2, tmp3, tmp4) = getFreeRegister4(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp)
                 bf.div(target, var2.index, tmp, tmp2, tmp3, tmp4)
                 Variable(target)
             }
             ExpressionType.Neq -> {
-                val (target, tmp, tmp2) = getFreeRegister3(var1.index, var2.index)
+                val (tmp, tmp2) = getFreeRegister2(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp)
                 bf.neq(target, var2.index, tmp, tmp2)
                 Variable(target)
             }
 
             ExpressionType.Eq -> {
-                val (target, tmp, tmp2) = getFreeRegister3(var1.index, var2.index)
+                val (tmp, tmp2) = getFreeRegister2(var1.index, var2.index, target)
                 bf.assign(target, var1.index, tmp)
                 bf.eq(target, var2.index, tmp, tmp2)
                 Variable(target)
             }
             ExpressionType.Gt -> {
-                val (target, o1, o2, tmp3, tmp4) = getFreeRegister5(var1.index, var2.index)
+                val (o1, o2, tmp3, tmp4) = getFreeRegister4(var1.index, var2.index, target)
                 bf.assign(o1, var1.index, tmp3)
                 bf.assign(o2, var2.index, tmp3)
                 bf.gt(target, o1, o2, tmp3, tmp4)
@@ -617,16 +609,16 @@ class BrainFuckMachine() {
     fun whileLoop(expr: Expression, body: BrainFuckMachine.() -> Unit) = whileLoop(expr, body, {})
 
     infix fun Expression.swap(second: Expression) {
-        val var1 = evaluate(this)
+        val var1 = evaluate(this, null)
         blockRegister(var1) {
-            val var2 = evaluate(second)
+            val var2 = evaluate(second, null) // todo?
             val (tmp0, tmp1) = getFreeRegister2()
             bf.swap(var1.index, var2.index, tmp0, tmp1)
         }
     }
 
     fun whileLoop(expr: Expression, body: BrainFuckMachine.() -> Unit, negBody: BrainFuckMachine.() -> Unit) {
-        val condVariable = evaluate(expr)
+        val condVariable = evaluate(expr, null)
         blockRegister(condVariable) {
 
             condition(condVariable, {
@@ -717,7 +709,7 @@ class BrainFuckMachine() {
         blockRegister(tmp0) {
             blockRegister(tmp1) {
                 bf.program {
-                    val variable = evaluate(expr)
+                    val variable = evaluate(expr, null)
 
                     val x = variable.index
                     blockRegister(x) {

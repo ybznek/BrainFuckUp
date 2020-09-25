@@ -52,7 +52,6 @@ fun main() {
             }
         }
     }
-
     println("Program:\n")
     val program = bf.toString()
     val code = BrainFuckCode()
