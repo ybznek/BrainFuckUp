@@ -1,6 +1,5 @@
 package brainfuckup
 
-import brainfuckup.expression.Constant
 import brainfuckup.interpret.BrainFuckCode
 import brainfuckup.interpret.BrainFuckCodeInterpreter
 
@@ -29,6 +28,4 @@ fun main() {
     val inter = BrainFuckCodeInterpreter()
     println("Run :\n")
     inter.run(program)
-    val mmm = inter.memory.entries.sortedBy { x -> x.key }
-    var debug = 42;
 }

@@ -42,19 +42,19 @@ class BrainFuckCode {
         }
     }
 
-    class Write() : Instruction {
+    object Write : Instruction {
         override fun toString(): String {
             return "write()"
         }
     }
 
-    class Read() : Instruction {
+    object Read : Instruction {
         override fun toString(): String {
             return "read()"
         }
     }
 
-    class NOP() : Instruction
+    object NOP : Instruction
 
 
     val instructions = ArrayList<Instruction>()
@@ -86,7 +86,7 @@ class BrainFuckCode {
             val last = if (insts.isNotEmpty())
                 insts.top()
             else
-                NOP()
+                NOP
 
             when (c) {
                 '+' -> when (last) {
@@ -107,8 +107,8 @@ class BrainFuckCode {
                     is MovePtr -> last.diff--
                     else -> insts.push(MovePtr(-1))
                 }
-                '.' -> insts.push(Write())
-                ',' -> insts.push(Read())
+                '.' -> insts.push(Write)
+                ',' -> insts.push(Read)
                 '[' -> {
                     val newLoop = Loop()
                     insts.push(newLoop)

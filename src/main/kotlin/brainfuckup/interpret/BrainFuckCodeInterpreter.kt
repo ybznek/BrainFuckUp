@@ -50,9 +50,7 @@ open class BrainFuckCodeInterpreter() : BrainFuckInterpreter {
     fun getValue(): Short {
         val block = getMemoryBlock()
         return block[inBlockAddress]
-
     }
-
 
     private fun getMemoryBlock(): ShortArray {
         return getMemoryBlock(ptr)
@@ -64,7 +62,6 @@ open class BrainFuckCodeInterpreter() : BrainFuckInterpreter {
             ShortArray(blockPattern + 1)
         }
     }
-
 
     override fun run(program: String) {
         val code = BrainFuckCode()
@@ -87,6 +84,5 @@ open class BrainFuckCodeInterpreter() : BrainFuckInterpreter {
                 is BrainFuckCode.NOP -> Unit
             }
         }
-
     }
 }

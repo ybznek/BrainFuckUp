@@ -22,7 +22,6 @@ class BrainFuckTest {
         interpreter.run(program)
     }
 
-    // or(1,1)
     @Test
     fun testAnd_1_1() = testLogicOperator(1, 1, 1) { x, y -> x and y }
 
