@@ -126,6 +126,9 @@ class BrainFuckCode {
                             insts.push(MovePtr(last.ptr))
                             insts.push(SetValWrite(last.value))
                         }
+                        is SetValWriteString -> {
+                            last.list.push(last.list.last())
+                        }
                         else -> insts.push(Write)
                     }
                 }
@@ -173,7 +176,7 @@ class BrainFuckCode {
     }
 
     override fun toString(): String {
-        return instructions.joinToString(",") { x -> x.toString() }
+        return instructions.joinToString("\n") { x -> x.toString() }
     }
 
 }

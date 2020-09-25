@@ -312,25 +312,35 @@ open class BrainFuckMachine() {
         }
     }
 
-    fun readNumber(target: Variable, success:Variable){
+    fun readNumber(target: Variable, success: Variable) {
         success set TRUE
-        declare { inputChar ->
-            read(inputChar)
-            whileLoop((inputChar neq 13) and (inputChar neq 10)) {
-                condition(
-                    expr = (inputChar gte '0') and (inputChar lte '9'),
-                    then = {
-                        declare { filtered ->
-                            filtered set (inputChar - '0')
-                            target set ((target * 10) + filtered)
-                        }
-                    },
-                    els = {
-                        success set FALSE
-                    }
-                )
+        declare { anyNumber ->
+            anyNumber set FALSE
+            declare { inputChar ->
                 read(inputChar)
+                whileLoop((inputChar neq 13) and (inputChar neq 10)) {
+                    condition(
+                        expr = (inputChar gte '0') and (inputChar lte '9'),
+                        then = {
+                            declare { filtered ->
+                                filtered set (inputChar - '0')
+                                target set ((target * 10) + filtered)
+                            }
+                            anyNumber set TRUE
+                        },
+                        els = {
+                            success set FALSE
+                        }
+                    )
+                    read(inputChar)
+                }
             }
+            condition(
+                expr = anyNumber eq FALSE,
+                then = {
+                    success set FALSE
+                }
+            )
         }
     }
 
@@ -646,7 +656,7 @@ open class BrainFuckMachine() {
     inline operator fun BfArray.set(index: Expression, value: Char) = this.set(index, value.toInt())
     operator fun Expression.times(second: Int) = this * Constant(second)
     operator fun Expression.minus(second: Char) = this - Constant(second.toInt())
-    fun condition(expr: Expression, positive: BrainFuckMachine.() -> Unit) = condition(expr, positive, {})
+    fun condition(expr: Expression, then: BrainFuckMachine.() -> Unit) = condition(expr, then, {})
     infix fun Expression.eq(var2: Expression) = Formula(ExpressionType.Eq, this, var2)
     infix fun Expression.neq(var2: Expression) = Formula(ExpressionType.Neq, this, var2)
     infix fun Expression.gt(var2: Expression) = Formula(ExpressionType.Gt, this, var2)

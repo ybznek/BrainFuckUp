@@ -34,7 +34,7 @@ interface Instruction {
 
     class Loop(val list: MutableList<Instruction> = ArrayList()) : Instruction {
         override fun toString(): String {
-            return this.list.joinToString(",", "loop(", ")") { x -> x.toString() }
+            return this.list.joinToString("\n\t", "loop(\n\t", "\n)") { x -> x.toString() }
         }
     }
 
