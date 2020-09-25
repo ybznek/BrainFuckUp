@@ -53,6 +53,14 @@ class BrainFuckMachine() {
         )
     }
 
+    operator fun Int.plus(expr: Expression): Expression {
+        return Formula(
+            ExpressionType.Plus,
+            Constant(this),
+            expr
+        )
+    }
+
     infix operator fun Expression.div(v: Int): Expression {
         return Formula(
             ExpressionType.Div,
@@ -111,7 +119,29 @@ class BrainFuckMachine() {
     }
 
     infix fun Variable.set(expr: Expression) {
+
+        fun tryIncDec(constant: Constant, type: ExpressionType): Boolean {
+            when (type) {
+                ExpressionType.Plus -> bf.inc(this.index, constant.value)
+                ExpressionType.Minus -> bf.dec(this.index, constant.value)
+                else -> return false
+            }
+            return true
+        }
+
+        if (expr is Formula) {
+            if (expr.v1 is Constant && expr.v2 == this) {
+                if (tryIncDec(expr.v1, expr.type)) {
+                    return
+                }
+            } else if (expr.v1 == this && expr.v2 is Constant) {
+                if (tryIncDec(expr.v2, expr.type)) {
+                    return
+                }
+            }
+        }
         this@BrainFuckMachine[this] = evaluate(expr)
+
     }
 
     @JvmName("setOperatorInt")

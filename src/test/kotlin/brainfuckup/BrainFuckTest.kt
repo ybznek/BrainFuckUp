@@ -631,4 +631,41 @@ class BrainFuckTest {
         Assert.assertEquals(5.toShort(), mem[3])
 
     }
+
+
+    @Test
+    fun incrementOptimization_var_first() {
+        machine.create {
+            declare { var1 ->
+                var1 set var1 + 3
+            }
+        }
+        val generated = machine.toString()
+        Assert.assertEquals(generated, ">[-]+++<")
+    }
+
+    @Test
+    fun incrementOptimization_var_last() {
+        machine.create {
+            declare { var1 ->
+                var1 set 3 + var1
+            }
+        }
+        val generated = machine.toString()
+        Assert.assertEquals(generated, ">[-]+++<")
+    }
+
+
+    @Test
+    fun decrementOptimization() {
+        machine.create {
+            declare { var1 ->
+                var1 set var1 - 3
+            }
+        }
+        val generated = machine.toString()
+        Assert.assertEquals(generated, ">[-]---<")
+    }
+
+
 }
