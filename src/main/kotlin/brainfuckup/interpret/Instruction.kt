@@ -114,6 +114,23 @@ interface Instruction {
         }
     }
 
+    class SetValWriteString(var list: MutableList<Int>) : Instruction {
+        override fun toString(): String {
+            return "setValWriteString(${list.joinToString(",")})"
+        }
+
+        override fun equals(other: Any?): Boolean {
+            val o = other as? SetValWriteString ?: return false
+            return (o.list == list)
+        }
+
+        override fun hashCode(): Int {
+            return list.hashCode()
+        }
+
+    }
+
+
     object Write : Instruction {
         override fun toString(): String {
             return "write()"

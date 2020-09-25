@@ -99,6 +99,11 @@ class BrainFuckCodeTest {
         assertGenerated("+++.", ChangeValWrite(3))
     }
 
+    @Test
+    fun setValWriteString() {
+        assertGenerated("[-].+.+.", SetValWriteString(arrayListOf(0,1,2)))
+    }
+
     private fun assertGenerated(program: String, vararg elements: Instruction) {
         val instructions = getInstructions(program)
         assertThat(instructions).containsExactly(*elements)

@@ -89,7 +89,42 @@ class BrainFuckCode {
                         }
                         is ChangeVal -> {
                             insts.pop()
-                            insts.push(ChangeValWrite(last.diff))
+                            when (val secondLast = insts.topOrNOP()) {
+                                is SetValWrite -> {
+                                    insts.pop()
+                                    insts.push(
+                                        SetValWriteString(
+                                            arrayListOf(
+                                                secondLast.value,
+                                                secondLast.value + last.diff
+                                            )
+                                        )
+                                    )
+                                }
+                                is SetValPtr -> {
+                                    insts.pop()
+                                    insts.push(MovePtr(secondLast.ptr))
+                                    insts.push(
+                                        SetValWriteString(
+                                            arrayListOf(
+                                                secondLast.value,
+                                                secondLast.value + last.diff
+                                            )
+                                        )
+                                    )
+                                }
+                                is SetValWriteString -> {
+                                    secondLast.list.add(secondLast.list.last() + last.diff)
+                                }
+                                else -> {
+                                    insts.push(ChangeValWrite(last.diff))
+                                }
+                            }
+                        }
+                        is SetValPtr -> {
+                            insts.pop()
+                            insts.push(MovePtr(last.ptr))
+                            insts.push(SetValWrite(last.value))
                         }
                         else -> insts.push(Write)
                     }

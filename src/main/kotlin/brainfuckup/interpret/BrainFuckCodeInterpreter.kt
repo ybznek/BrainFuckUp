@@ -85,6 +85,12 @@ open class BrainFuckCodeInterpreter() : BrainFuckInterpreter {
                     changeValue(instr.diff)
                     write(getValue())
                 }
+                is Instruction.SetValWriteString -> {
+                    for (value in instr.list) {
+                        write(value.toShort())
+                    }
+                    setValue(instr.list.last())
+                }
                 is Instruction.Read -> setValue(read().toInt())
                 is Instruction.NOP -> Unit
             }
