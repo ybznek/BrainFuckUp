@@ -3,7 +3,8 @@ package brainfuckup
 import assertk.assertThat
 import assertk.assertions.containsExactly
 import brainfuckup.interpret.BrainFuckCode
-import brainfuckup.interpret.BrainFuckCode.*
+import brainfuckup.interpret.Instruction
+import brainfuckup.interpret.Instruction.*
 import org.junit.Test
 
 class BrainFuckCodeTest {
@@ -85,7 +86,7 @@ class BrainFuckCodeTest {
 
     @Test
     fun SetValPtrSetValReset() {
-        assertGenerated(">>>[-]+++[-]++", SetValPtr(3,2))
+        assertGenerated(">>>[-]+++[-]++", SetValPtr(3, 2))
     }
 
     private fun assertGenerated(program: String, vararg elements: Instruction) {

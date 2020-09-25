@@ -60,25 +60,25 @@ open class BrainFuckCodeInterpreter() : BrainFuckInterpreter {
         runCode(code.instructions)
     }
 
-    private fun runCode(code: List<BrainFuckCode.Instruction>) {
+    private fun runCode(code: List<Instruction>) {
 
         for (instr in code) {
             when (instr) {
-                is BrainFuckCode.MovePtr -> ptr += instr.diff
-                is BrainFuckCode.ChangeVal -> changeValue(instr.diff)
-                is BrainFuckCode.ChangeValPtr -> {
+                is Instruction.MovePtr -> ptr += instr.diff
+                is Instruction.ChangeVal -> changeValue(instr.diff)
+                is Instruction.ChangeValPtr -> {
                     ptr += instr.ptr
                     changeValue(instr.value)
                 }
-                is BrainFuckCode.SetValPtr -> {
+                is Instruction.SetValPtr -> {
                     ptr += instr.ptr
                     setValue(instr.value)
                 }
-                is BrainFuckCode.Loop -> while (getValue() != 0.toShort()) runCode(instr.list)
-                is BrainFuckCode.SetVal -> setValue(instr.value)
-                is BrainFuckCode.Write -> write(getValue())
-                is BrainFuckCode.Read -> setValue(read().toInt())
-                is BrainFuckCode.NOP -> Unit
+                is Instruction.Loop -> while (getValue() != 0.toShort()) runCode(instr.list)
+                is Instruction.SetVal -> setValue(instr.value)
+                is Instruction.Write -> write(getValue())
+                is Instruction.Read -> setValue(read().toInt())
+                is Instruction.NOP -> Unit
             }
         }
     }
