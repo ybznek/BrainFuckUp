@@ -79,14 +79,14 @@ class BrainFuckCodeGenerator {
     *
     * */
     fun decLoop(loopVar: Int, f: BrainFuckCodeGenerator.() -> Unit) {
-        moveTo(0, loopVar)
+        movePtrFromTo(0, loopVar)
         loop {
-            moveTo(loopVar, 0)
+            movePtrFromTo(loopVar, 0)
             f()
-            moveTo(0, loopVar)
+            movePtrFromTo(0, loopVar)
             dec()
         }
-        moveTo(loopVar, 0)
+        movePtrFromTo(loopVar, 0)
     }
 
     fun addTo(target: Int, v1: Int, v2: Int, t1: Int) {
@@ -116,18 +116,18 @@ class BrainFuckCodeGenerator {
             inc(y, 1)
         }
 
-        moveTo(0, tmp1)
+        movePtrFromTo(0, tmp1)
         loop {
-            moveTo(tmp1, x)
+            movePtrFromTo(tmp1, x)
             if (eq) {
                 dec(1)
             } else {
                 inc(1)
             }
-            moveTo(x, tmp1)
+            movePtrFromTo(x, tmp1)
             reset()
         }
-        moveTo(tmp1, 0)
+        movePtrFromTo(tmp1, 0)
     }
 
     fun inc(relativeIndex: Int, cnt: Int = 1) {
@@ -159,7 +159,7 @@ class BrainFuckCodeGenerator {
         }
     }
 
-    fun moveTo(from: Int, to: Int) {
+    fun movePtrFromTo(from: Int, to: Int) {
         val rel = to - from
         movePtr(rel)
     }
@@ -181,40 +181,40 @@ class BrainFuckCodeGenerator {
     fun assign(to: Int, from: Int, tmp: Int) {
         program {
             // temp0[-]
-            moveTo(0, tmp)
+            movePtrFromTo(0, tmp)
             reset()
 
             // to[-]
-            moveTo(tmp, to)
+            movePtrFromTo(tmp, to)
             reset()
 
             // from
-            moveTo(to, from)
+            movePtrFromTo(to, from)
             loop {
                 // to+
-                moveTo(from, to)
+                movePtrFromTo(from, to)
                 inc()
                 // temp0 +
-                moveTo(to, tmp)
+                movePtrFromTo(to, tmp)
                 inc()
 
                 // from-
-                moveTo(tmp, from)
+                movePtrFromTo(tmp, from)
                 dec()
             }
 
             // temp0
-            moveTo(from, tmp)
+            movePtrFromTo(from, tmp)
             loop {
                 // from+
-                moveTo(tmp, from)
+                movePtrFromTo(tmp, from)
                 inc()
                 // temp-
-                moveTo(from, tmp)
+                movePtrFromTo(from, tmp)
                 dec()
             }
             // start
-            moveTo(tmp, 0)
+            movePtrFromTo(tmp, 0)
         }
     }
 
@@ -228,9 +228,9 @@ class BrainFuckCodeGenerator {
             inc(tmp0, 1)
         }
 
-        moveTo(0, tmp0)
+        movePtrFromTo(0, tmp0)
         loop {
-            moveTo(tmp0, 0)
+            movePtrFromTo(tmp0, 0)
             decLoop(y) {
                 inc(tmp1, 1)
                 inc(tmp2, 1)
@@ -250,91 +250,91 @@ class BrainFuckCodeGenerator {
                     inc(tmp0, 1)
                 }
                 decLoop(tmp2) {
-                    moveTo(0, tmp1)
+                    movePtrFromTo(0, tmp1)
                     dec()
                     loop {
-                        moveTo(tmp1, x)
+                        movePtrFromTo(tmp1, x)
                         dec()
-                        moveTo(x, tmp1)
+                        movePtrFromTo(x, tmp1)
                         reset()
                     }
                     inc()
-                    moveTo(tmp1, 0)
+                    movePtrFromTo(tmp1, 0)
 
                 }
             }
             inc(x, 1)
-            moveTo(0, tmp0)
+            movePtrFromTo(0, tmp0)
         }
-        moveTo(tmp0, 0)
+        movePtrFromTo(tmp0, 0)
     }
 
     fun mult(x: Int, y: Int, temp0: Int, temp1: Int) {
 
-        moveTo(0, temp0)
+        movePtrFromTo(0, temp0)
         reset()
 
-        moveTo(temp0, temp1)
+        movePtrFromTo(temp0, temp1)
         reset()
 
-        moveTo(temp1, x)
+        movePtrFromTo(temp1, x)
         loop {
-            moveTo(x, temp1)
+            movePtrFromTo(x, temp1)
             inc()
-            moveTo(temp1, x)
+            movePtrFromTo(temp1, x)
             dec()
         }
-        moveTo(x, temp1)
+        movePtrFromTo(x, temp1)
         loop {
-            moveTo(temp1, y)
+            movePtrFromTo(temp1, y)
             loop {
-                moveTo(y, x)
+                movePtrFromTo(y, x)
                 inc()
-                moveTo(x, temp0)
+                movePtrFromTo(x, temp0)
                 inc()
-                moveTo(temp0, y)
+                movePtrFromTo(temp0, y)
                 dec()
             }
-            moveTo(y, temp0)
+            movePtrFromTo(y, temp0)
             loop {
-                moveTo(temp0, y)
+                movePtrFromTo(temp0, y)
                 inc()
-                moveTo(y, temp0)
+                movePtrFromTo(y, temp0)
                 dec()
             }
 
-            moveTo(temp0, temp1)
+            movePtrFromTo(temp0, temp1)
             dec()
         }
-        moveTo(temp1, 0)
+        movePtrFromTo(temp1, 0)
 
     }
 
     fun addOrSub(to: Int, from: Int, tmp: Int, inc: Boolean) {
         program {
-            moveTo(0, tmp)
+            movePtrFromTo(0, tmp)
             reset()
-            moveTo(tmp, from)
+            movePtrFromTo(tmp, from)
             loop {
-                moveTo(from, to)
+                movePtrFromTo(from, to)
                 if (inc) {
                     inc()
                 } else {
                     dec()
                 }
-                moveTo(to, tmp)
+                movePtrFromTo(to, tmp)
                 inc()
-                moveTo(tmp, from)
+                movePtrFromTo(tmp, from)
                 dec()
             }
-            moveTo(from, tmp)
+            movePtrFromTo(from, tmp)
             loop {
-                moveTo(tmp, from)
+                movePtrFromTo(tmp, from)
                 inc()
-                moveTo(from, tmp)
+                movePtrFromTo(from, tmp)
                 dec()
             }
-            moveTo(tmp, 0)
+            movePtrFromTo(tmp, 0)
         }
     }
 
@@ -403,10 +403,10 @@ class BrainFuckCodeGenerator {
             inc(tmp1, 1)
         }
 
-        moveTo(0, tmp1)
+        movePtrFromTo(0, tmp1)
         loop {
             reset()
-            moveTo(tmp1, 0)
+            movePtrFromTo(tmp1, 0)
             decLoop(y) {
                 inc(tmp1, 1)
                 inc(tmp0, 1)
@@ -415,16 +415,16 @@ class BrainFuckCodeGenerator {
                 inc(y, 1)
             }
 
-            moveTo(0, tmp1)
+            movePtrFromTo(0, tmp1)
             loop {
-                moveTo(tmp1, x)
+                movePtrFromTo(tmp1, x)
                 inc()
-                moveTo(x, tmp1)
+                movePtrFromTo(x, tmp1)
                 reset()
             }
         }
 
-        moveTo(tmp1, 0)
+        movePtrFromTo(tmp1, 0)
     }
 
     fun gt(z: Int, x: Int, y: Int, tmp0: Int, tmp1: Int) {
@@ -432,40 +432,40 @@ class BrainFuckCodeGenerator {
         reset(tmp1)
         reset(z)
 
-        moveTo(0, x)
+        movePtrFromTo(0, x)
         loop {
-            moveTo(x, tmp0)
+            movePtrFromTo(x, tmp0)
             inc()
-            moveTo(tmp0, y)
+            movePtrFromTo(tmp0, y)
             loop {
                 dec()
-                moveTo(y, tmp0)
+                movePtrFromTo(y, tmp0)
                 reset()
-                moveTo(tmp0, tmp1)
+                movePtrFromTo(tmp0, tmp1)
                 inc()
-                moveTo(tmp1, y)
+                movePtrFromTo(tmp1, y)
             }
 
-            moveTo(y, tmp0)
+            movePtrFromTo(y, tmp0)
             loop {
                 dec()
-                moveTo(tmp0, z)
+                movePtrFromTo(tmp0, z)
                 inc()
-                moveTo(z, tmp0)
+                movePtrFromTo(z, tmp0)
             }
-            moveTo(tmp0, tmp1)
+            movePtrFromTo(tmp0, tmp1)
             loop {
                 dec()
-                moveTo(tmp1, y)
+                movePtrFromTo(tmp1, y)
                 inc()
-                moveTo(y, tmp1)
+                movePtrFromTo(y, tmp1)
             }
-            moveTo(tmp1, y)
+            movePtrFromTo(tmp1, y)
             dec()
-            moveTo(y, x)
+            movePtrFromTo(y, x)
             dec()
         }
 
-        moveTo(x, 0)
+        movePtrFromTo(x, 0)
     }
 }

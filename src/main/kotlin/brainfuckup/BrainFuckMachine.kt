@@ -518,20 +518,18 @@ open class BrainFuckMachine() {
     }
 
     fun whileLoop(expr: Expression, body: BrainFuckMachine.() -> Unit, negBody: BrainFuckMachine.() -> Unit) {
-
-        val condVariable = evaluate(expr, null)
-        blockRegister(condVariable) {
-
+        declare { condVariable ->
+            evaluate(expr, condVariable)
             condition(condVariable, {
                 bf.program {
-                    moveTo(0, condVariable.index)
+                    movePtrFromTo(0, condVariable.index)
                     loop {
-                        moveTo(condVariable.index, 0)
+                        movePtrFromTo(condVariable.index, 0)
                         body()
-                        set(condVariable, expr)
-                        moveTo(0, condVariable.index)
+                        evaluate(expr, condVariable)
+                        movePtrFromTo(0, condVariable.index)
                     }
-                    moveTo(condVariable.index, 0)
+                    movePtrFromTo(condVariable.index, 0)
                 }
             }, {
                 negBody()
@@ -616,20 +614,20 @@ open class BrainFuckMachine() {
 
 
                         // true branch
-                        moveTo(0, tmp1)
+                        movePtrFromTo(0, tmp1)
                         loop {
 
-                            moveTo(tmp1, 0)
+                            movePtrFromTo(tmp1, 0)
                             then()
-                            moveTo(0, tmp1)
+                            movePtrFromTo(0, tmp1)
 
-                            moveTo(tmp1, tmp0)
+                            movePtrFromTo(tmp1, tmp0)
                             dec()
-                            moveTo(tmp0, tmp1)
+                            movePtrFromTo(tmp0, tmp1)
                             reset()
                         }
 
-                        moveTo(tmp1, 0)
+                        movePtrFromTo(tmp1, 0)
 
                         decLoop(tmp0) {
                             els()
